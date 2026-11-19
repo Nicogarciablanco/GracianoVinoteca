@@ -1,0 +1,17 @@
+.button.add-to-cart-button {
+  min-height: 44px;
+  min-width: 0;
+  max-width: 100%;
+  padding: 8px clamp(8px, 1vw, 14px);
+  gap: 6px;
+  border-radius: 6px;
+  font-size: .875rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.button.add-to-cart-button svg {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+}

@@ -1,0 +1,100 @@
+.home-hero {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  align-items: center;
+  min-height: clamp(23.5rem, 34vw, 53rem);
+  background: linear-gradient(90deg, #211b17e8, #29221cbd 54%, #29221cf2),
+    #211d19 url('/assets/hero.jpg') center 56% / cover;
+  color: #fff;
+}
+
+.home-hero-inner {
+  width: 100%;
+  padding: clamp(3rem, 6vw, 7rem) clamp(1.125rem, 5.6vw, 9rem);
+}
+
+.home-hero-copy {
+  max-width: min(56%, 56rem);
+}
+
+.home-hero-copy h1 {
+  margin: 0;
+  font: 600 clamp(2.125rem, 3.6vw, 5.25rem)/1.03 'DM Sans', sans-serif;
+  letter-spacing: -.045em;
+}
+
+.home-hero-copy h1 span {
+  display: block;
+  font-size: 1.2em;
+  margin-bottom: .08em;
+}
+
+.home-hero-copy p {
+  margin: clamp(1rem, 2vw, 1.75rem) 0 0;
+  font: 500 clamp(1rem, 1.4vw, 1.625rem)/1.45 'DM Sans', sans-serif;
+}
+
+.home-hero .home-hero-cta {
+  border-radius: .375rem;
+  padding-inline: 1.5rem;
+  margin-top: clamp(1.125rem, 2vw, 1.75rem);
+  font-size: clamp(.9375rem, 1.15vw, 1.125rem);
+}
+
+.home-hero-cta:focus-visible {
+  outline-color: white;
+}
+
+.home-hero-photo {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 59%;
+  display: block;
+  z-index: -1;
+  mask-image: linear-gradient(90deg, transparent, #000 20%);
+}
+
+.home-hero-photo img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+@media (max-width: 800px) {
+  .home-hero {
+    min-height: 0;
+    background: linear-gradient(180deg, #211b17e6, #29221cde 55%, #29221c),
+      #211d19 url('/assets/hero.jpg') center 45% / cover;
+  }
+
+  .home-hero-inner {
+    padding-block: clamp(2.125rem, 6vw, 3.375rem) 1.125rem;
+  }
+
+  .home-hero-copy {
+    max-width: 36rem;
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .home-hero-copy h1 {
+    font-size: clamp(2rem, 6vw, 3.625rem);
+  }
+
+  .home-hero-photo {
+    position: relative;
+    z-index: auto;
+    width: 100%;
+    min-width: 0;
+    mask-image: linear-gradient(180deg, transparent, #000 13%);
+  }
+
+  .home-hero-photo img {
+    height: auto;
+    aspect-ratio: 1062 / 724;
+    object-fit: contain;
+    object-position: center;
+  }
+}
