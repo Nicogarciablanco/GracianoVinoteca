@@ -83,21 +83,60 @@ button:disabled {
   font-weight: 600;
 }
 
-.stock-overview {
-  display: flex;
-  gap: 5px 16px;
-  flex-wrap: wrap;
-  list-style: none;
-  padding: 0;
-  margin: 8px 0 0;
-  color: var(--muted);
-  font-size: .8125rem;
+.admin-branches {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 24px 0 30px;
 }
 
-.stock-overview strong {
-  margin-left: 3px;
+.admin-branch {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  width: 100%;
+  min-height: 126px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: white;
   color: var(--ink);
+  text-align: left;
+  cursor: pointer;
 }
+
+.admin-branch[aria-pressed="true"] {
+  border: 2px solid var(--purple);
+  padding: 17px;
+  background: #f8f0fb;
+}
+
+.admin-branch strong { font-size: 1rem; }
+.admin-branch span,
+.admin-branch small { color: var(--muted); line-height: 1.4; }
+.admin-branch small { margin-top: auto; font-size: .8125rem; }
+
+.admin-branch-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 14px;
+  border-bottom: 2px solid var(--purple);
+}
+
+.admin-branch-heading h2 { margin: 0 0 4px; font-size: 1.5rem; }
+.admin-branch-heading p { margin: 0; color: var(--muted); font-size: .875rem; }
+.admin-branch-heading > span { color: var(--muted); font-size: .8125rem; white-space: nowrap; }
+
+.admin-row .admin-stock {
+  margin-top: 8px;
+  font-weight: 600;
+}
+
+.admin-stock.available { color: #2d6244; }
+.admin-stock.empty { color: #965139; }
 
 .editor-grid,
 .demo-stock {
@@ -140,6 +179,11 @@ button:disabled {
 }
 
 @media (max-width: 760px) {
+  .admin-branches { grid-template-columns: minmax(0, 1fr); gap: 8px; margin-block: 20px 24px; }
+  .admin-branch { min-height: 0; padding: 12px 14px; }
+  .admin-branch[aria-pressed="true"] { padding: 11px 13px; }
+  .admin-branch-heading { align-items: start; }
+  .admin-branch-heading > span { display: none; }
   .admin-heading .button {
     margin-top: 10px;
   }

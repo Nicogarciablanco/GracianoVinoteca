@@ -43,8 +43,12 @@ export function Admin({ products, save, reset }: {
   const [status, setStatus] = useState('');
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [selectedBranch, setSelectedBranch] = useState<BranchId>(branches[0].id);
   const savePending = useRef(false);
   const existing = editor && editor !== 'new' ? editor : undefined;
+  const currentBranch = branches.find((branch) => branch.id === selectedBranch) ?? branches[0];
+  const currentAvailable = products.filter((product) => product.stock[selectedBranch] > 0).length;
+  const currentUnits = products.reduce((sum, product) => sum + product.stock[selectedBranch], 0);
 
   function openEditor(product: Product | 'new') {
     setError('');
@@ -109,19 +113,38 @@ export function Admin({ products, save, reset }: {
         <Link to="/" className="button outline">Ver tienda</Link>
       </header>
       <main className="admin-main section-wrap" id="admin-products" tabIndex={-1}>
-        <div className="section-heading admin-heading"><h1>Productos</h1>
+        <div className="section-heading admin-heading"><h1>Stock por sucursal</h1>
           <button className="button primary" onClick={() => openEditor('new')}>Cargar producto</button></div>
-        <p>Editá el catálogo y las unidades de ejemplo por sucursal.</p>
+        <p>Elegí una sucursal para ver sus unidades. Podés editar el catálogo y el stock de las tres sucursales desde cada producto.</p>
         <p role="status">{status}</p>
-        <div className="admin-directory">
+        <div className="admin-branches" role="group" aria-label="Seleccionar sucursal">
+          {branches.map((branch) => {
+            const available = products.filter((product) => product.stock[branch.id] > 0).length;
+            const units = products.reduce((sum, product) => sum + product.stock[branch.id], 0);
+            return <button type="button" className="admin-branch" key={branch.id}
+              aria-pressed={selectedBranch === branch.id}
+              onClick={() => setSelectedBranch(branch.id)}>
+              <strong>{branch.name}</strong><span>{branch.area}</span>
+              <small>{available} {available === 1 ? 'producto' : 'productos'} con stock · {units} {units === 1 ? 'unidad' : 'unidades'}</small>
+            </button>;
+          })}
+        </div>
+        <div className="admin-branch-heading">
+          <div><h2 id="branch-stock-heading">{currentBranch.name}</h2><p>{currentBranch.area} · {currentAvailable} {currentAvailable === 1 ? 'producto disponible' : 'productos disponibles'} · {currentUnits} {currentUnits === 1 ? 'unidad' : 'unidades'}</p></div>
+          <span>Inventario de ejemplo</span>
+        </div>
+        <div className="admin-directory" role="region" aria-labelledby="branch-stock-heading">
           {products.map((product) => <article className="admin-row" key={product.id}>
             <img src={productImage(product)} alt="" />
             <div><h2>{product.name}</h2><p>{product.category} · {product.size}</p>
-              <ul className="stock-overview">{branches.map((branch) =>
-                <li key={branch.id}>{branch.name} <strong>{product.stock[branch.id]}</strong></li>)}</ul>
+              <p className={product.stock[selectedBranch] > 0 ? 'admin-stock available' : 'admin-stock empty'}>
+                {product.stock[selectedBranch] > 0
+                  ? `${product.stock[selectedBranch]} ${product.stock[selectedBranch] === 1 ? 'unidad disponible' : 'unidades disponibles'}`
+                  : 'Sin stock en esta sucursal'}
+              </p>
             </div>
             <b>{money(product.price)}</b>
-            <button className="button outline" aria-label={`Editar ${product.name}`} onClick={() => openEditor(product)}>Editar</button>
+            <button className="button outline" aria-label={`Editar ${product.name} en ${currentBranch.name}`} onClick={() => openEditor(product)}>Editar</button>
           </article>)}
         </div>
         <button className="text-link" onClick={() => setResetOpen(true)}>Restablecer ejemplos</button>
@@ -148,7 +171,7 @@ export function Admin({ products, save, reset }: {
           <label className="field">Descripción<textarea name="description" defaultValue={existing?.description} maxLength={600} rows={3} /></label>
           <fieldset className="demo-stock">
             <legend>Unidades por sucursal</legend>
-            {branches.map((branch) => <label key={branch.id} className="field">{branch.name}
+            {[currentBranch, ...branches.filter((branch) => branch.id !== selectedBranch)].map((branch) => <label key={branch.id} className="field">{branch.name}
               <input type="number" name={branch.id} min={0} max={9999} step={1} required defaultValue={existing?.stock[branch.id] ?? 0} />
             </label>)}
           </fieldset>

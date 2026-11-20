@@ -5,7 +5,7 @@ export function HomeHero() {
     <section className="home-hero" aria-labelledby="hero-title">
       <div className="home-hero-inner">
         <div className="home-hero-copy">
-          <h1 id="hero-title"><span>Graciano,</span>{' '}compartiendo emociones</h1>
+          <h1 id="hero-title"><span>Graciano</span>{' '}compartiendo emociones</h1>
           <p>Vinos, espumantes y destilados.<br />Elegí online y decidí cómo recibir tu compra.</p>
           <a className="button primary home-hero-cta" href="#catalogo-completo">Ver productos</a>
         </div>
