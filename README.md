@@ -15,7 +15,7 @@ pnpm build
 pnpm preview
 ```
 
-La tienda está en `/` y el panel en `/admin`. Para mostrar el faltante, agregá Catena Malbec y abrí el carrito. Se inicia con retiro en Ituzaingó 1167 y hay stock de ejemplo en las otras sucursales. Podés cambiar a Obispo Trejo 1119 para seguir con la compra.
+La tienda está en `/` y el acceso al panel en `/admin`. Desde ahí se abre una página de stock por sucursal: `/admin/sucursal/ituzaingo`, `/admin/sucursal/trejo` o `/admin/sucursal/rio-negro`. Cada página permite editar las unidades de ese local; los datos del producto son compartidos. Para mostrar el faltante, agregá Catena Malbec y abrí el carrito. Se inicia con retiro en Ituzaingó 1167 y hay stock de ejemplo en las otras sucursales. Podés cambiar a Obispo Trejo 1119 para seguir con la compra.
 
 ## Publicar la demo
 

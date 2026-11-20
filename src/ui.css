@@ -103,32 +103,41 @@ button:disabled {
   background: white;
   color: var(--ink);
   text-align: left;
-  cursor: pointer;
+  text-decoration: none;
 }
 
-.admin-branch[aria-pressed="true"] {
-  border: 2px solid var(--purple);
-  padding: 17px;
+.admin-branch:hover,
+.admin-branch:focus-visible {
+  border-color: var(--purple);
   background: #f8f0fb;
 }
 
 .admin-branch strong { font-size: 1rem; }
 .admin-branch span,
 .admin-branch small { color: var(--muted); line-height: 1.4; }
-.admin-branch small { margin-top: auto; font-size: .8125rem; }
+.admin-branch small { margin-top: 10px; font-size: .8125rem; }
+.admin-branch .admin-branch-action { color: var(--purple); font-weight: 700; }
+
+.admin-back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--purple);
+  font-weight: 600;
+}
 
 .admin-branch-heading {
   display: flex;
   align-items: end;
   justify-content: space-between;
   gap: 16px;
+  margin-top: 26px;
   padding-bottom: 14px;
   border-bottom: 2px solid var(--purple);
 }
 
 .admin-branch-heading h2 { margin: 0 0 4px; font-size: 1.5rem; }
 .admin-branch-heading p { margin: 0; color: var(--muted); font-size: .875rem; }
-.admin-branch-heading > span { color: var(--muted); font-size: .8125rem; white-space: nowrap; }
 
 .admin-row .admin-stock {
   margin-top: 8px;
@@ -146,7 +155,7 @@ button:disabled {
 }
 
 .demo-stock {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   border: 1px solid var(--line);
   margin: 18px 0;
   padding: 10px 14px 0;
@@ -157,9 +166,21 @@ button:disabled {
   padding-inline: 6px;
 }
 
-.admin-header .brand img {
+.header.admin-header .brand {
+  width: auto;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.header.admin-header .brand img {
+  width: auto;
+  height: auto;
+  max-width: clamp(7rem, 13vw, 10.75rem);
+  max-height: 4.25rem;
   object-fit: contain;
   object-position: left center;
+  background: transparent;
 }
 
 .admin-editor {
@@ -179,11 +200,13 @@ button:disabled {
 }
 
 @media (max-width: 760px) {
+  .header.admin-header .brand img {
+    max-width: clamp(5.375rem, 31vw, 8rem);
+    max-height: 3.5rem;
+  }
   .admin-branches { grid-template-columns: minmax(0, 1fr); gap: 8px; margin-block: 20px 24px; }
   .admin-branch { min-height: 0; padding: 12px 14px; }
-  .admin-branch[aria-pressed="true"] { padding: 11px 13px; }
   .admin-branch-heading { align-items: start; }
-  .admin-branch-heading > span { display: none; }
   .admin-heading .button {
     margin-top: 10px;
   }

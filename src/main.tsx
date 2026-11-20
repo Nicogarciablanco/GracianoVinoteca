@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
-import { Admin } from './Admin';
+import { Admin, AdminLanding } from './Admin';
 import { Store } from './Store';
 import { demoRepository } from './repository';
 import type { Product } from './commerce';
@@ -21,7 +21,8 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Store products={products} />} />
-        <Route path="/admin" element={<Admin products={products} save={saveCatalog}
+        <Route path="/admin" element={<AdminLanding products={products} />} />
+        <Route path="/admin/sucursal/:branchId" element={<Admin products={products} save={saveCatalog}
           reset={() => setProducts(demoRepository.restoreCatalog())} />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

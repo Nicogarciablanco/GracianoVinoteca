@@ -1,6 +1,6 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
-import { Link } from 'react-router';
+import { Link, Navigate, useParams } from 'react-router';
 import { Dialog } from './Dialog';
 import { branches, categories, money, productImage } from './commerce';
 import type { BranchId, Category, Product } from './commerce';
@@ -33,6 +33,38 @@ async function readPhoto(file: File) {
   });
 }
 
+function AdminHeader() {
+  return <>
+    <div id="admin-top" className="preview-note" role="region" aria-label="Aviso de demostración"><span>Panel de demostración</span><span>Los cambios se guardan en este navegador</span></div>
+    <header className="header admin-header">
+      <a href="#admin-top" className="brand" aria-label="Volver arriba en el panel"><img src="/assets/graciano-logo-violeta.png" alt="Graciano" /></a>
+      <Link to="/" className="button outline">Ver tienda</Link>
+    </header>
+  </>;
+}
+
+export function AdminLanding({ products }: { products: Product[] }) {
+  return <>
+    <a className="skip-link" href="#admin-branches">Ir a sucursales</a>
+    <AdminHeader />
+    <main className="admin-main section-wrap" id="admin-branches" tabIndex={-1}>
+      <h1>Panel de sucursales</h1>
+      <p>Elegí un local para consultar y editar su stock de ejemplo.</p>
+      <div className="admin-branches" aria-label="Sucursales">
+        {branches.map((branch) => {
+          const available = products.filter((product) => product.stock[branch.id] > 0).length;
+          const units = products.reduce((sum, product) => sum + product.stock[branch.id], 0);
+          return <Link className="admin-branch" key={branch.id} to={`/admin/sucursal/${branch.id}`}>
+            <strong>{branch.name}</strong><span>{branch.area}</span>
+            <small>{available} {available === 1 ? 'producto' : 'productos'} con stock · {units} {units === 1 ? 'unidad' : 'unidades'}</small>
+            <span className="admin-branch-action">Ver stock →</span>
+          </Link>;
+        })}
+      </div>
+    </main>
+  </>;
+}
+
 export function Admin({ products, save, reset }: {
   products: Product[];
   save: (products: Product[]) => void;
@@ -43,12 +75,16 @@ export function Admin({ products, save, reset }: {
   const [status, setStatus] = useState('');
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
-  const [selectedBranch, setSelectedBranch] = useState<BranchId>(branches[0].id);
+  const { branchId } = useParams();
   const savePending = useRef(false);
   const existing = editor && editor !== 'new' ? editor : undefined;
-  const currentBranch = branches.find((branch) => branch.id === selectedBranch) ?? branches[0];
-  const currentAvailable = products.filter((product) => product.stock[selectedBranch] > 0).length;
-  const currentUnits = products.reduce((sum, product) => sum + product.stock[selectedBranch], 0);
+  const currentBranch = branches.find((branch) => branch.id === branchId);
+
+  useEffect(() => {
+    setStatus('');
+    setEditor(undefined);
+    setResetOpen(false);
+  }, [branchId]);
 
   function openEditor(product: Product | 'new') {
     setError('');
@@ -61,7 +97,7 @@ export function Admin({ products, save, reset }: {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (savePending.current) return;
+    if (savePending.current || !currentBranch) return;
     const fields = new FormData(event.currentTarget);
     const text = (field: string) => String(fields.get(field) ?? '').trim();
     if (editable.some(({ key, required }) => required && !text(key))) {
@@ -74,8 +110,8 @@ export function Admin({ products, save, reset }: {
     try {
       const photoFile = fields.get('photo');
       const photo = photoFile instanceof File && photoFile.size ? await readPhoto(photoFile) : existing?.photo;
-      const stock: Record<BranchId, number> = { ...emptyStock };
-      for (const branch of branches) stock[branch.id] = Number(fields.get(branch.id));
+      const stock: Record<BranchId, number> = { ...emptyStock, ...existing?.stock };
+      stock[currentBranch.id] = Number(fields.get(currentBranch.id));
       const product: Product = {
         id: existing?.id ?? `producto-${crypto.randomUUID()}`,
         name: text('name'),
@@ -104,42 +140,30 @@ export function Admin({ products, save, reset }: {
     }
   }
 
+  if (!currentBranch) return <Navigate to="/admin" replace />;
+  const currentAvailable = products.filter((product) => product.stock[currentBranch.id] > 0).length;
+  const currentUnits = products.reduce((sum, product) => sum + product.stock[currentBranch.id], 0);
+
   return (
     <>
       <a className="skip-link" href="#admin-products">Ir a productos</a>
-      <div className="preview-note" role="region" aria-label="Aviso de demostración"><span>Panel de demostración</span><span>Los cambios se guardan en este navegador</span></div>
-      <header className="header admin-header">
-        <Link to="/" className="brand" aria-label="Ir a la tienda"><img src="/assets/graciano-logo-violeta.png" alt="Graciano" /></Link>
-        <Link to="/" className="button outline">Ver tienda</Link>
-      </header>
+      <AdminHeader />
       <main className="admin-main section-wrap" id="admin-products" tabIndex={-1}>
-        <div className="section-heading admin-heading"><h1>Stock por sucursal</h1>
+        <Link to="/admin" className="admin-back">← Todas las sucursales</Link>
+        <div className="section-heading admin-heading"><h1>{currentBranch.name}</h1>
           <button className="button primary" onClick={() => openEditor('new')}>Cargar producto</button></div>
-        <p>Elegí una sucursal para ver sus unidades. Podés editar el catálogo y el stock de las tres sucursales desde cada producto.</p>
+        <p>{currentBranch.area} · Stock de ejemplo. Los datos de producto se comparten entre locales; acá editás las unidades de esta sucursal.</p>
         <p role="status">{status}</p>
-        <div className="admin-branches" role="group" aria-label="Seleccionar sucursal">
-          {branches.map((branch) => {
-            const available = products.filter((product) => product.stock[branch.id] > 0).length;
-            const units = products.reduce((sum, product) => sum + product.stock[branch.id], 0);
-            return <button type="button" className="admin-branch" key={branch.id}
-              aria-pressed={selectedBranch === branch.id}
-              onClick={() => setSelectedBranch(branch.id)}>
-              <strong>{branch.name}</strong><span>{branch.area}</span>
-              <small>{available} {available === 1 ? 'producto' : 'productos'} con stock · {units} {units === 1 ? 'unidad' : 'unidades'}</small>
-            </button>;
-          })}
-        </div>
         <div className="admin-branch-heading">
-          <div><h2 id="branch-stock-heading">{currentBranch.name}</h2><p>{currentBranch.area} · {currentAvailable} {currentAvailable === 1 ? 'producto disponible' : 'productos disponibles'} · {currentUnits} {currentUnits === 1 ? 'unidad' : 'unidades'}</p></div>
-          <span>Inventario de ejemplo</span>
+          <div><h2 id="branch-stock-heading">Inventario</h2><p>{currentAvailable} {currentAvailable === 1 ? 'producto disponible' : 'productos disponibles'} · {currentUnits} {currentUnits === 1 ? 'unidad' : 'unidades'}</p></div>
         </div>
         <div className="admin-directory" role="region" aria-labelledby="branch-stock-heading">
           {products.map((product) => <article className="admin-row" key={product.id}>
             <img src={productImage(product)} alt="" />
             <div><h2>{product.name}</h2><p>{product.category} · {product.size}</p>
-              <p className={product.stock[selectedBranch] > 0 ? 'admin-stock available' : 'admin-stock empty'}>
-                {product.stock[selectedBranch] > 0
-                  ? `${product.stock[selectedBranch]} ${product.stock[selectedBranch] === 1 ? 'unidad disponible' : 'unidades disponibles'}`
+              <p className={product.stock[currentBranch.id] > 0 ? 'admin-stock available' : 'admin-stock empty'}>
+                {product.stock[currentBranch.id] > 0
+                  ? `${product.stock[currentBranch.id]} ${product.stock[currentBranch.id] === 1 ? 'unidad disponible' : 'unidades disponibles'}`
                   : 'Sin stock en esta sucursal'}
               </p>
             </div>
@@ -170,10 +194,10 @@ export function Admin({ products, save, reset }: {
           </label>
           <label className="field">Descripción<textarea name="description" defaultValue={existing?.description} maxLength={600} rows={3} /></label>
           <fieldset className="demo-stock">
-            <legend>Unidades por sucursal</legend>
-            {[currentBranch, ...branches.filter((branch) => branch.id !== selectedBranch)].map((branch) => <label key={branch.id} className="field">{branch.name}
-              <input type="number" name={branch.id} min={0} max={9999} step={1} required defaultValue={existing?.stock[branch.id] ?? 0} />
-            </label>)}
+            <legend>Stock en {currentBranch.name}</legend>
+            <label className="field">Unidades disponibles
+              <input type="number" name={currentBranch.id} min={0} max={9999} step={1} required defaultValue={existing?.stock[currentBranch.id] ?? 0} />
+            </label>
           </fieldset>
           {existing && <img className="admin-photo" src={productImage(existing)} alt="" />}
           <label className="field">Foto JPG, PNG o WebP de hasta 1 MB
